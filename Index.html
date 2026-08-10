@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J.A.R.V.I.S // DAVICCINOO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #02040a;
+      --panel: rgba(5, 12, 24, 0.85);
+      --cyan: #00f0ff;
+      --cyan-dim: #00a8b8;
+      --text: #e8f7ff;
+      --muted: #6b8a9e;
+      --green: #4ade80;
+      --border: 1px solid rgba(0, 240, 255, 0.25);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+    body.entered { cursor: none; }
+
+    .cursor, .cursor-follower { display: none; }
+    body.entered .cursor {
+      display: block; width: 12px; height: 12px; background: var(--cyan); border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9999; mix-blend-mode: difference;
+      box-shadow: 0 0 15px var(--cyan);
+    }
+    body.entered .cursor-follower {
+      display: block; width: 36px; height: 36px; border: 1.5px solid rgba(0, 240, 255, 0.5);
+      border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transition: all 0.12s ease;
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 55px 55px; pointer-events: none; z-index: 0;
+    }
+    .bg-radial {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 25% 15%, rgba(0, 90, 140, 0.18), transparent 50%),
+                  radial-gradient(ellipse at 75% 85%, rgba(0, 40, 90, 0.14), transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .scanlines {
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.09) 2px, rgba(0,0,0,0.09) 4px);
+      pointer-events: none; z-index: 900; opacity: 0.4;
+    }
+    #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    #enter-screen {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, #071018 0%, #02040a 70%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1000; transition: opacity 0.9s ease, visibility 0.9s;
+    }
+    #enter-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .boot-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.6rem, 9vw, 5.5rem);
+      font-weight: 800; letter-spacing: 0.18em; color: var(--cyan);
+      text-shadow: 0 0 40px rgba(0, 240, 255, 0.7);
+      margin-bottom: 0.5rem;
+      animation: logo-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes logo-pulse {
+      0%, 100% { text-shadow: 0 0 25px rgba(0, 240, 255, 0.5); }
+      50% { text-shadow: 0 0 55px rgba(0, 240, 255, 1); }
+    }
+    .boot-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem; color: var(--muted); letter-spacing: 0.35em;
+      text-transform: uppercase; margin-bottom: 1.8rem;
+    }
+    .boot-log {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem; color: var(--cyan-dim);
+      height: 100px; width: min(340px, 90vw);
+      text-align: left; margin-bottom: 2.2rem; overflow: hidden;
+    }
+    .boot-log div { opacity: 0; animation: fadeIn 0.35s forwards; }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .boot-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem; font-weight: 600; letter-spacing: 0.22em;
+      padding: 1.1rem 2.8rem; background: transparent;
+      border: 2px solid var(--cyan); color: var(--cyan);
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: all 0.35s ease; text-transform: uppercase;
+      z-index: 10;
+    }
+    .boot-btn::before {
+      content: ''; position: absolute; inset: 0; background: var(--cyan);
+      transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; z-index: -1;
+    }
+    .boot-btn:hover { color: #000; box-shadow: 0 0 40px rgba(0, 240, 255, 0.5); }
+    .boot-btn:hover::before { transform: scaleX(1); }
+
+    #dashboard {
+      position: relative; z-index: 1; opacity: 0; transform: translateY(30px);
+      transition: opacity 1s ease 0.15s, transform 1s ease 0.15s;
+      max-width: 1280px; margin: 0 auto; padding: 1.3rem 1.3rem 4rem;
+    }
+    #dashboard.visible { opacity: 1; transform: translateY(0); }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 1.3rem; background: var(--panel); border: var(--border);
+      border-radius: 12px; margin-bottom: 1.4rem; backdrop-filter: blur(16px);
+    }
+    .topbar-logo { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.12em; }
+    .topbar-right { display: flex; align-items: center; gap: 1.6rem; font-family: 'Share Tech Mono', monospace; font-size: 0.82rem; }
+    .status-online { display: flex; align-items: center; gap: 0.4rem; color: var(--green); }
+    .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px var(--green); animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    #live-clock { color: var(--cyan); }
+
+    .main-grid { display: grid; grid-template-columns: 290px 1fr; gap: 1.3rem; }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      body.entered { cursor: auto; }
+      body.entered .cursor, body.entered .cursor-follower { display: none !important; }
+    }
+
+    .panel {
+      background: var(--panel); border: var(--border); border-radius: 14px; padding: 1.35rem;
+      backdrop-filter: blur(16px); position: relative; transition: transform 0.25s ease, box-shadow 0.25s ease;
+      transform-style: preserve-3d; overflow: hidden;
+    }
+    .panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.5;
+    }
+    .panel:hover { box-shadow: 0 0 35px rgba(0, 240, 255, 0.12); }
+    .panel-title {
+      font-family: 'Orbitron', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--cyan);
+      letter-spacing: 0.16em; margin-bottom: 1.1rem; display: flex; align-items: center; gap: 0.45rem; text-transform: uppercase;
+    }
+    .panel-title::before { content: ''; width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 8px var(--cyan); }
+
+    .profile-panel { text-align: center; }
+    .avatar-wrap { position: relative; width: 175px; height: 175px; margin: 0 auto 1.2rem; }
+    .avatar-ring {
+      position: absolute; inset: -6px; border: 2px solid var(--cyan); border-radius: 50%;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.4); animation: ring-spin 11s linear infinite;
+    }
+    .avatar-ring::after { content: ''; position: absolute; inset: 4px; border: 1px dashed rgba(0, 240, 255, 0.35); border-radius: 50%; }
+    @keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .avatar-scan {
+      position: absolute; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      box-shadow: 0 0 12px var(--cyan); animation: scan 2.8s ease-in-out infinite; z-index: 2;
+    }
+    @keyframes scan { 0% { top: 8%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 88%; opacity: 0; } }
+    .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; background: #0a1520; }
+    .profile-name {
+      font-family: 'Orbitron', sans-serif; font-size: 1.45rem; font-weight: 700;
+      background: linear-gradient(90deg, var(--cyan), #a5f3fc); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.2rem;
+    }
+    .profile-tag { font-size: 0.92rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .social-row { display: flex; flex-direction: column; gap: 0.6rem; }
+    .social-link {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.65rem 1rem;
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px;
+      color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease;
+    }
+    .social-link:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 18px rgba(0, 240, 255, 0.25); transform: translateY(-2px); }
+    .social-link svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .right-col { display: flex; flex-direction: column; gap: 1.3rem; }
+    .type-box { font-size: 1.1rem; min-height: 3.4em; border-left: 3px solid var(--cyan); padding-left: 1rem; }
+    .type-box .cursor { display: inline-block; width: 7px; height: 1.05em; background: var(--cyan); margin-left: 2px; animation: cursor-blink 0.7s step-end infinite; vertical-align: text-bottom; }
+    @keyframes cursor-blink { 50% { opacity: 0; } }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+    @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-box {
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 10px;
+      padding: 0.9rem 0.6rem; text-align: center; transition: all 0.3s;
+    }
+    .stat-box:hover { border-color: var(--cyan); }
+    .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--cyan); }
+    .stat-label { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.15rem; }
+
+    .systems-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .sys-item {
+      background: rgba(0,0,0,0.35); border: 1px solid rgba(0,240,255,0.12); border-radius: 8px;
+      padding: 0.7rem 0.9rem; display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Share Tech Mono', monospace; font-size: 0.82rem;
+    }
+    .sys-label { color: var(--muted); }
+    .sys-value { color: var(--green); }
+
+    .about-text { font-size: 1.05rem; color: var(--text); }
+    .about-text strong { color: var(--cyan); }
+
+    .gb-form { display: grid; gap: 0.7rem; margin-bottom: 1.2rem; }
+    .gb-form input, .gb-form textarea {
+      background: rgba(0,0,0,0.5); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px;
+      padding: 0.8rem 1rem; color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none;
+    }
+    .gb-form input:focus, .gb-form textarea:focus { border-color: var(--cyan); }
+    .gb-form textarea { min-height: 80px; resize: vertical; }
+    .gb-submit {
+      font-family: 'Orbitron', sans-serif; font-weight: 600; letter-spacing: 0.1em; padding: 0.8rem 1.5rem;
+      background: transparent; border: 2px solid var(--cyan); color: var(--cyan); cursor: pointer;
+      border-radius: 8px; transition: all 0.3s; justify-self: start; text-transform: uppercase; font-size: 0.78rem;
+    }
+    .gb-submit:hover { background: var(--cyan); color: #000; box-shadow: 0 0 25px rgba(0, 240, 255, 0.4); }
+    .gb-list { display: flex; flex-direction: column; gap: 0.7rem; max-height: 240px; overflow-y: auto; }
+    .gb-entry {
+      background: rgba(0,0,0,0.4); border-left: 3px solid var(--cyan); padding: 0.8rem 1rem;
+      border-radius: 0 8px 8px 0; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
+    }
+    .gb-meta { display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.75rem; }
+    .gb-name { color: var(--cyan); font-weight: 600; }
+    .gb-time { color: var(--muted); }
+    .gb-msg { color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.98rem; }
+    .gb-empty { color: var(--muted); text-align: center; padding: 1.6rem; font-style: italic; }
+
+    .footer {
+      text-align: center; margin-top: 2.2rem; font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em;
+    }
+    .footer span { color: var(--cyan-dim); }
+
+    .audio-btn {
+      position: fixed; bottom: 1.4rem; right: 1.4rem; z-index: 100; width: 50px; height: 50px;
+      background: var(--panel); border: var(--border); border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(12px); transition: all 0.3s;
+    }
+    .audio-btn:hover { border-color: var(--cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); }
+    .audio-btn svg { width: 20px; height: 20px; fill: var(--cyan); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursor-follower"></div>
+  <canvas id="particles"></canvas>
+  <div class="bg-grid"></div>
+  <div class="bg-radial"></div>
+  <div class="scanlines"></div>
+
+  <div id="enter-screen">
+    <div class="boot-logo">J.A.R.V.I.S</div>
+    <div class="boot-sub">Command Center // DAVICCINOO</div>
+    <div class="boot-log" id="boot-log"></div>
+    <button class="boot-btn" id="enter-btn">Initialize System</button>
+  </div>
+
+  <div id="dashboard">
+    <div class="topbar">
+      <div class="topbar-logo">J.A.R.V.I.S</div>
+      <div class="topbar-right">
+        <div class="status-online"><div class="status-dot"></div> SYSTEMS ONLINE</div>
+        <div id="live-clock">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <div class="panel profile-panel" data-tilt>
+        <div class="panel-title">Operator Profile</div>
+        <div class="avatar-wrap">
+          <div class="avatar-ring"></div>
+          <div class="avatar-scan"></div>
+          <img src="profile.png" alt="DAVICCINOO">
+        </div>
+        <div class="profile-name">DAVICCINOO</div>
+        <div class="profile-tag">Digital Architect • Matrix Native</div>
+        <div class="social-row">
+          <a href="https://discord.com/users/864380109682900992" target="_blank" class="social-link" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.548-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            Discord
+          </a>
+          <a href="https://instagram.com/lowkeytuffdav" target="_blank" class="social-link" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+            Instagram
+          </a>
+          <a href="https://www.roblox.com/users/9341137870/profile" target="_blank" class="social-link" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M18.926 5.582l-2.425 9.028-9.028 2.425L5.074 7.99l2.425-9.028 9.028-2.425 2.399 9.045zm-2.425 9.028l-1.714 6.38-6.38 1.714-1.714-6.38 6.38-1.714 1.714 6.38-6.38 1.714z"/></svg>
+            Roblox
+          </a>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="panel" data-tilt>
+          <div class="panel-title">System Briefing</div>
+          <div class="type-box"><span id="typed-text"></span><span class="cursor"></span></div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-num" id="visitor-count">---</div><div class="stat-label">Visitors</div></div>
+          <div class="stat-box"><div class="stat-num" id="msg-count">0</div><div class="stat-label">Log Entries</div></div>
+          <div class="stat-box"><div class="stat-num" id="cpu-load">12%</div><div class="stat-label">CPU Load</div></div>
+          <div class="stat-box"><div class="stat-num">24/7</div><div class="stat-label">Uptime</div></div>
+        </div>
+
+        <div class="panel" data-tilt>
+          <div class="panel-title">Live Systems</div>
+          <div class="systems-grid">
+            <div class="sys-item"><span class="sys-label">NETWORK</span><span class="sys-value">STABLE</span></div>
+            <div class="sys-item"><span class="sys-label">MEMORY</span><span class="sys-value" id="sys-mem">64%</span></div>
+            <div class="sys-item"><span class="sys-label">SECURITY</span><span class="sys-value">ACTIVE</span></div>
+            <div class="sys-item"><span class="sys-label">LATENCY</span><span class="sys-value" id="sys-lat">14ms</span></div>
+          </div>
+        </div>
+
+        <div class="panel" data-tilt>
+          <div class="panel-title">Operator Bio</div>
+          <p class="about-text">
+            Yo. I'm <strong>DAVICCINOO</strong> — digital architect, system breaker, and full-time matrix resident. 
+            I build experiences, experiment with code, and keep the vibes cyber-clean. 
+            Currently running on caffeine, late-night playlists, and pure curiosity. 
+            Leave a transmission below if you made it this far.
+          </p>
+        </div>
+
+        <div class="panel" data-tilt>
+          <div class="panel-title">Secure Log // Guestbook</div>
+          <form class="gb-form" id="guestbook-form">
+            <input type="text" id="guest-name" placeholder="Callsign / Name" maxlength="30" required>
+            <textarea id="guest-msg" placeholder="Transmit message..." maxlength="280" required></textarea>
+            <button type="submit" class="gb-submit">Transmit</button>
+          </form>
+          <div class="gb-list" id="messages-list"><div class="gb-empty">No transmissions logged yet.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">J.A.R.V.I.S Command Center • <span>Operator: DAVICCINOO</span> • 2026</div>
+  </div>
+
+  <div class="audio-btn" id="audio-toggle" title="Toggle Audio">
+    <svg id="audio-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+  </div>
+
+  <audio id="bg-audio" loop preload="auto"><source src="golden_brown.mp3" type="audio/mpeg"></audio>
+
+  <script>
+    const bootMessages = [
+      "> Loading core modules...",
+      "> Establishing secure link...",
+      "> Biometrics verified...",
+      "> Operator: DAVICCINOO",
+      "> All systems nominal."
+    ];
+    const bootLog = document.getElementById('boot-log');
+    bootMessages.forEach((msg, i) => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.textContent = msg;
+        bootLog.appendChild(div);
+      }, 300 + i * 400);
+    });
+
+    const enterBtn = document.getElementById('enter-btn');
+    const enterScreen = document.getElementById('enter-screen');
+    const dashboard = document.getElementById('dashboard');
+    const bgAudio = document.getElementById('bg-audio');
+    let audioPlaying = false;
+
+    enterBtn.addEventListener('click', function() {
+      enterScreen.classList.add('hidden');
+      dashboard.classList.add('visible');
+      document.body.classList.add('entered');
+
+      try {
+        bgAudio.volume = 0.4;
+        bgAudio.play().then(() => { audioPlaying = true; }).catch(() => {});
+      } catch(e) {}
+
+      startTypewriter();
+      loadGuestbook();
+      updateVisitorCount();
+      startClock();
+      startFakeMetrics();
+      initCursor();
+      initParticles();
+      initTilt();
+    });
+
+    function startClock() {
+      const el = document.getElementById('live-clock');
+      function tick() {
+        el.textContent = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function startFakeMetrics() {
+      setInterval(() => {
+        const cpu = document.getElementById('cpu-load');
+        const mem = document.getElementById('sys-mem');
+        const lat = document.getElementById('sys-lat');
+        if (cpu) cpu.textContent = (8 + Math.floor(Math.random() * 18)) + '%';
+        if (mem) mem.textContent = (55 + Math.floor(Math.random() * 20)) + '%';
+        if (lat) lat.textContent = (9 + Math.floor(Math.random() * 18)) + 'ms';
+      }, 2800);
+    }
+
+    document.getElementById('audio-toggle').addEventListener('click', function() {
+      const icon = document.getElementById('audio-icon');
+      if (audioPlaying) {
+        bgAudio.pause();
+        audioPlaying = false;
+        icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+      } else {
+        bgAudio.play();
+        audioPlaying = true;
+        icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+      }
+    });
+
+    function startTypewriter() {
+      const el = document.getElementById('typed-text');
+      const texts = [
+        "Initializing command center...",
+        "Operator DAVICCINOO online.",
+        "All systems green. Welcome.",
+        "Digital architect. Matrix native.",
+        "Building worlds one pixel at a time.",
+        "Caffeine levels: critical. Creativity: maxed."
+      ];
+      let textIndex = 0, charIndex = 0, isDeleting = false, delay = 70;
+
+      function type() {
+        const current = texts[textIndex];
+        if (isDeleting) {
+          el.textContent = current.substring(0, charIndex - 1);
+          charIndex--;
+          delay = 30;
+        } else {
+          el.textContent = current.substring(0, charIndex + 1);
+          charIndex++;
+          delay = 60;
+        }
+        if (!isDeleting && charIndex === current.length) {
+          delay = 2200;
+          isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+          isDeleting = false;
+          textIndex = (textIndex + 1) % texts.length;
+          delay = 350;
+        }
+        setTimeout(type, delay);
+      }
+      type();
+    }
+
+    async function updateVisitorCount() {
+      const el = document.getElementById('visitor-count');
+      try {
+        const res = await fetch('https://countapi.mileshilliard.com/api/v1/hit/daviccinco-jarvis-final');
+        const data = await res.json();
+        el.textContent = data.value || '---';
+      } catch (e) {
+        let v = parseInt(localStorage.getItem('dav_visits') || '0') + 1;
+        localStorage.setItem('dav_visits', v);
+        el.textContent = v;
+      }
+    }
+
+    function loadGuestbook() {
+      const list = document.getElementById('messages-list');
+      const messages = JSON.parse(localStorage.getItem('dav_guestbook') || '[]');
+      document.getElementById('msg-count').textContent = messages.length;
+      if (!messages.length) {
+        list.innerHTML = '<div class="gb-empty">No transmissions logged yet.</div>';
+        return;
+      }
+      list.innerHTML = messages.slice().reverse().map(m => `
+        <div class="gb-entry">
+          <div class="gb-meta">
+            <span class="gb-name">${escapeHtml(m.name)}</span>
+            <span class="gb-time">${m.time}</span>
+          </div>
+          <div class="gb-msg">${escapeHtml(m.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('guestbook-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('guest-name').value.trim();
+      const text = document.getElementById('guest-msg').value.trim();
+      if (!name || !text) return;
+      const messages = JSON.parse(localStorage.getItem('dav_guestbook') || '[]');
+      const now = new Date();
+      messages.push({
+        name: name,
+        text: text,
+        time: now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+      });
+      localStorage.setItem('dav_guestbook', JSON.stringify(messages));
+      document.getElementById('guest-name').value = '';
+      document.getElementById('guest-msg').value = '';
+      loadGuestbook();
+    });
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function initCursor() {
+      const cursor = document.getElementById('cursor');
+      const follower = document.getElementById('cursor-follower');
+      document.addEventListener('mousemove', function(e) {
+        cursor.style.left = (e.clientX - 6) + 'px';
+        cursor.style.top = (e.clientY - 6) + 'px';
+        follower.style.left = (e.clientX - 18) + 'px';
+        follower.style.top = (e.clientY - 18) + 'px';
+      });
+    }
+
+    function initParticles() {
+      const canvas = document.getElementById('particles');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.6 + 0.3,
+          dx: (Math.random() - 0.5) * 0.35,
+          dy: (Math.random() - 0.5) * 0.35
+        });
+      }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 240, 255, 0.3)';
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+          p.x += p.dx;
+          p.y += p.dy;
+          if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function initTilt() {
+      document.querySelectorAll('[data-tilt]').forEach(panel => {
+        panel.addEventListener('mousemove', function(e) {
+          const rect = panel.getBoundingClientRect();
+          const rotX = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -4;
+          const rotY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 4;
+          panel.style.transform = 'perspective(1000px) rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg) scale(1.01)';
+        });
+        panel.addEventListener('mouseleave', function() {
+          panel.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        });
+      });
+    }
+  </script>
+</body>
+</html>
