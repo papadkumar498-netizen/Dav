@@ -120,21 +120,37 @@
 
     .reactor-wrap {
       position: relative;
-      width: min(260px, 72vw);
-      height: min(260px, 72vw);
+      width: min(280px, 78vw);
+      height: min(280px, 78vw);
       cursor: pointer;
       transition: transform 0.35s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .reactor-wrap:hover { transform: scale(1.04); }
+    .reactor-wrap:hover { transform: scale(1.05); }
 
     .reactor-svg {
-      width: 100%; height: 100%;
-      filter: drop-shadow(0 0 25px rgba(0, 230, 255, 0.55)) drop-shadow(0 0 60px rgba(0, 180, 255, 0.35));
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter:
+        drop-shadow(0 0 18px rgba(0, 240, 255, 0.65))
+        drop-shadow(0 0 45px rgba(0, 200, 255, 0.4));
       animation: reactorPulse 2.2s ease-in-out infinite;
+      pointer-events: none;
     }
     @keyframes reactorPulse {
-      0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 220, 255, 0.5)) drop-shadow(0 0 45px rgba(0, 180, 255, 0.3)); }
-      50% { filter: drop-shadow(0 0 40px rgba(0, 245, 255, 0.85)) drop-shadow(0 0 80px rgba(0, 200, 255, 0.5)); }
+      0%, 100% {
+        filter:
+          drop-shadow(0 0 16px rgba(0, 230, 255, 0.55))
+          drop-shadow(0 0 40px rgba(0, 190, 255, 0.35));
+      }
+      50% {
+        filter:
+          drop-shadow(0 0 28px rgba(0, 250, 255, 0.9))
+          drop-shadow(0 0 65px rgba(0, 210, 255, 0.55));
+      }
     }
 
     .reactor-flare {
@@ -560,88 +576,136 @@
     </form>
   </div>
 
-  <!-- REACTOR — blueprint-style matching your image -->
+  <!-- REACTOR — pure SVG lines + color (matches your blueprint) -->
   <div id="reactor-screen">
     <div class="reactor-wrap" id="reactor">
-      <svg class="reactor-svg" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <svg class="reactor-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#2a3544"/>
-            <stop offset="40%" stop-color="#1a222e"/>
-            <stop offset="100%" stop-color="#0d1218"/>
+          <linearGradient id="mDark" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3a4555"/>
+            <stop offset="50%" stop-color="#1c2430"/>
+            <stop offset="100%" stop-color="#0a0e14"/>
           </linearGradient>
-          <linearGradient id="coreGlow" x1="50%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stop-color="#7ef9ff"/>
-            <stop offset="50%" stop-color="#00e5ff"/>
-            <stop offset="100%" stop-color="#00a8cc"/>
+          <linearGradient id="mEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#5a6a7c"/>
+            <stop offset="100%" stop-color="#1a222c"/>
           </linearGradient>
-          <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
-            <stop offset="40%" stop-color="#00f0ff" stop-opacity="0.7"/>
-            <stop offset="100%" stop-color="#00a0c0" stop-opacity="0"/>
+          <linearGradient id="goldG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f0d060"/>
+            <stop offset="50%" stop-color="#c9a227"/>
+            <stop offset="100%" stop-color="#8a7018"/>
+          </linearGradient>
+          <linearGradient id="coreG" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#a8ffff"/>
+            <stop offset="40%" stop-color="#00e8ff"/>
+            <stop offset="100%" stop-color="#0090b0"/>
+          </linearGradient>
+          <radialGradient id="coreR" cx="50%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+            <stop offset="35%" stop-color="#00f0ff" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#006680" stop-opacity="0.15"/>
           </radialGradient>
-          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
-        <!-- Outer soft glow -->
-        <path d="M120 18 L210 185 L30 185 Z" fill="none" stroke="rgba(0,220,255,0.15)" stroke-width="14" filter="url(#softGlow)"/>
+        <!-- Outer housing - rounded triangle shell -->
+        <path d="M100 12
+                 C108 12 118 16 128 28
+                 L178 120
+                 C185 132 185 145 178 155
+                 L155 178
+                 C148 186 138 190 128 190
+                 L72 190
+                 C62 190 52 186 45 178
+                 L22 155
+                 C15 145 15 132 22 120
+                 L72 28
+                 C82 16 92 12 100 12 Z"
+              fill="url(#mDark)" stroke="#4a5568" stroke-width="1.2"/>
 
-        <!-- Outer metallic frame (thick triangle) -->
-        <path d="M120 28 L200 178 L40 178 Z" fill="url(#metal)" stroke="#3a4a5c" stroke-width="1.5"/>
-        <path d="M120 38 L188 170 L52 170 Z" fill="#0a1018" stroke="#4a5a6c" stroke-width="1"/>
+        <!-- Inner metal rim -->
+        <path d="M100 22
+                 C106 22 114 25 122 35
+                 L168 118
+                 C174 128 174 138 168 146
+                 L148 170
+                 C142 177 134 180 126 180
+                 L74 180
+                 C66 180 58 177 52 170
+                 L32 146
+                 C26 138 26 128 32 118
+                 L78 35
+                 C86 25 94 22 100 22 Z"
+              fill="#0c1218" stroke="#3a4555" stroke-width="1"/>
 
-        <!-- Gold corner accents -->
-        <path d="M120 28 L132 48 L108 48 Z" fill="#c9a227" stroke="#f5c542" stroke-width="0.8"/>
-        <path d="M40 178 L58 168 L52 185 Z" fill="#c9a227" stroke="#f5c542" stroke-width="0.6"/>
-        <path d="M200 178 L182 168 L188 185 Z" fill="#c9a227" stroke="#f5c542" stroke-width="0.6"/>
+        <!-- Gold accents - top -->
+        <path d="M88 14 L100 8 L112 14 L108 22 L92 22 Z" fill="url(#goldG)" stroke="#e8c840" stroke-width="0.6"/>
+        <!-- Gold bottom-left -->
+        <path d="M28 158 L38 148 L48 162 L40 172 L28 168 Z" fill="url(#goldG)" stroke="#e8c840" stroke-width="0.5"/>
+        <!-- Gold bottom-right -->
+        <path d="M172 158 L162 148 L152 162 L160 172 L172 168 Z" fill="url(#goldG)" stroke="#e8c840" stroke-width="0.5"/>
 
-        <!-- Side mechanical panels -->
-        <path d="M48 155 L58 170 L45 175 L38 160 Z" fill="#1a2530" stroke="#5a6a7a" stroke-width="0.8"/>
-        <path d="M192 155 L182 170 L195 175 L202 160 Z" fill="#1a2530" stroke="#5a6a7a" stroke-width="0.8"/>
-        <rect x="42" y="148" width="14" height="6" rx="1" fill="none" stroke="#00c8e0" stroke-width="0.7" opacity="0.6"/>
-        <rect x="184" y="148" width="14" height="6" rx="1" fill="none" stroke="#00c8e0" stroke-width="0.7" opacity="0.6"/>
+        <!-- Side mechanical panels LEFT -->
+        <path d="M30 100 L42 88 L48 110 L38 130 L28 120 Z" fill="#151c26" stroke="#5a6a7c" stroke-width="0.8"/>
+        <rect x="32" y="105" width="10" height="3" rx="0.5" fill="none" stroke="#00c8e0" stroke-width="0.6" opacity="0.7"/>
+        <rect x="33" y="112" width="8" height="2.5" rx="0.4" fill="none" stroke="#00c8e0" stroke-width="0.5" opacity="0.5"/>
+        <path d="M34 125 L44 140 L38 148 L28 135 Z" fill="#121820" stroke="#4a5a6c" stroke-width="0.7"/>
 
-        <!-- Inner glowing triangle core -->
-        <path d="M120 52 L172 162 L68 162 Z" fill="rgba(0,200,255,0.15)" stroke="#00e8ff" stroke-width="2" filter="url(#softGlow)"/>
-        <path d="M120 62 L162 154 L78 154 Z" fill="url(#coreGlow)" opacity="0.35"/>
+        <!-- Side mechanical panels RIGHT -->
+        <path d="M170 100 L158 88 L152 110 L162 130 L172 120 Z" fill="#151c26" stroke="#5a6a7c" stroke-width="0.8"/>
+        <rect x="158" y="105" width="10" height="3" rx="0.5" fill="none" stroke="#00c8e0" stroke-width="0.6" opacity="0.7"/>
+        <rect x="159" y="112" width="8" height="2.5" rx="0.4" fill="none" stroke="#00c8e0" stroke-width="0.5" opacity="0.5"/>
+        <path d="M166 125 L156 140 L162 148 L172 135 Z" fill="#121820" stroke="#4a5a6c" stroke-width="0.7"/>
 
-        <!-- Geometric mesh pattern (like your image) -->
-        <!-- Horizontal lines -->
-        <line x1="95" y1="75" x2="145" y2="75" stroke="#00f0ff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="88" y1="90" x2="152" y2="90" stroke="#00f0ff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="82" y1="105" x2="158" y2="105" stroke="#00f0ff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="78" y1="120" x2="162" y2="120" stroke="#00f0ff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="74" y1="135" x2="166" y2="135" stroke="#00f0ff" stroke-width="0.6" opacity="0.5"/>
-        <line x1="72" y1="148" x2="168" y2="148" stroke="#00f0ff" stroke-width="0.6" opacity="0.5"/>
-        <!-- Diagonal mesh -->
-        <line x1="120" y1="62" x2="95" y2="148" stroke="#00e0ff" stroke-width="0.5" opacity="0.4"/>
-        <line x1="120" y1="62" x2="145" y2="148" stroke="#00e0ff" stroke-width="0.5" opacity="0.4"/>
-        <line x1="100" y1="70" x2="85" y2="148" stroke="#00e0ff" stroke-width="0.4" opacity="0.35"/>
-        <line x1="140" y1="70" x2="155" y2="148" stroke="#00e0ff" stroke-width="0.4" opacity="0.35"/>
-        <line x1="110" y1="70" x2="130" y2="148" stroke="#00e0ff" stroke-width="0.4" opacity="0.3"/>
-        <line x1="130" y1="70" x2="110" y2="148" stroke="#00e0ff" stroke-width="0.4" opacity="0.3"/>
-        <!-- Small triangles inside -->
-        <path d="M120 78 L135 108 L105 108 Z" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.7"/>
-        <path d="M120 95 L128 115 L112 115 Z" fill="rgba(0,240,255,0.4)" stroke="#00f0ff" stroke-width="0.7"/>
-        <path d="M120 105 L125 118 L115 118 Z" fill="#00f0ff" opacity="0.85">
-          <animate attributeName="opacity" values="0.6;1;0.6" dur="1.8s" repeatCount="indefinite"/>
+        <!-- Glowing core triangle -->
+        <path d="M100 42 L155 155 L45 155 Z"
+              fill="url(#coreR)" stroke="#00f0ff" stroke-width="2" filter="url(#glow)" opacity="0.95"/>
+
+        <!-- Inner V frame -->
+        <path d="M100 55 L142 148 L58 148 Z"
+              fill="none" stroke="#00e8ff" stroke-width="2.2" opacity="0.9"/>
+        <path d="M100 65 L132 140 L68 140 Z"
+              fill="rgba(0,220,255,0.12)" stroke="#00d0e8" stroke-width="1.2" opacity="0.8"/>
+
+        <!-- Geometric triangular mesh -->
+        <!-- Row lines -->
+        <line x1="88" y1="70" x2="112" y2="70" stroke="#00f0ff" stroke-width="0.5" opacity="0.55"/>
+        <line x1="82" y1="82" x2="118" y2="82" stroke="#00f0ff" stroke-width="0.5" opacity="0.55"/>
+        <line x1="76" y1="94" x2="124" y2="94" stroke="#00f0ff" stroke-width="0.5" opacity="0.55"/>
+        <line x1="70" y1="106" x2="130" y2="106" stroke="#00f0ff" stroke-width="0.5" opacity="0.5"/>
+        <line x1="64" y1="118" x2="136" y2="118" stroke="#00f0ff" stroke-width="0.5" opacity="0.5"/>
+        <line x1="58" y1="130" x2="142" y2="130" stroke="#00f0ff" stroke-width="0.5" opacity="0.45"/>
+        <line x1="52" y1="142" x2="148" y2="142" stroke="#00f0ff" stroke-width="0.5" opacity="0.4"/>
+
+        <!-- Diagonal mesh left -->
+        <line x1="100" y1="55" x2="70" y2="140" stroke="#00e0ff" stroke-width="0.45" opacity="0.4"/>
+        <line x1="100" y1="55" x2="80" y2="140" stroke="#00e0ff" stroke-width="0.4" opacity="0.35"/>
+        <line x1="100" y1="55" x2="90" y2="140" stroke="#00e0ff" stroke-width="0.4" opacity="0.3"/>
+        <!-- Diagonal mesh right -->
+        <line x1="100" y1="55" x2="130" y2="140" stroke="#00e0ff" stroke-width="0.45" opacity="0.4"/>
+        <line x1="100" y1="55" x2="120" y2="140" stroke="#00e0ff" stroke-width="0.4" opacity="0.35"/>
+        <line x1="100" y1="55" x2="110" y2="140" stroke="#00e0ff" stroke-width="0.4" opacity="0.3"/>
+
+        <!-- Small triangle cells -->
+        <path d="M100 72 L110 90 L90 90 Z" fill="none" stroke="#00f0ff" stroke-width="0.7" opacity="0.7"/>
+        <path d="M100 88 L108 102 L92 102 Z" fill="rgba(0,240,255,0.25)" stroke="#00f0ff" stroke-width="0.6" opacity="0.8"/>
+        <path d="M100 100 L106 112 L94 112 Z" fill="#00f0ff" opacity="0.75">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.6s" repeatCount="indefinite"/>
         </path>
 
-        <!-- Inner border line -->
-        <path d="M120 55 L168 158 L72 158 Z" fill="none" stroke="rgba(0,230,255,0.5)" stroke-width="1"/>
+        <!-- Bottom bar -->
+        <rect x="55" y="158" width="90" height="5" rx="1.5" fill="#151c26" stroke="#00c8e0" stroke-width="0.6" opacity="0.75"/>
+        <line x1="65" y1="168" x2="85" y2="168" stroke="#00d0e8" stroke-width="1" opacity="0.45"/>
+        <line x1="115" y1="168" x2="135" y2="168" stroke="#00d0e8" stroke-width="1" opacity="0.45"/>
 
-        <!-- Bottom bar details -->
-        <rect x="70" y="168" width="100" height="4" rx="1" fill="#1a2530" stroke="#00c8e0" stroke-width="0.5" opacity="0.7"/>
-        <line x1="80" y1="175" x2="100" y2="175" stroke="#00d0e8" stroke-width="1" opacity="0.5"/>
-        <line x1="140" y1="175" x2="160" y2="175" stroke="#00d0e8" stroke-width="1" opacity="0.5"/>
-
-        <!-- Center point glow -->
-        <circle cx="120" cy="112" r="8" fill="url(#centerGlow)">
-          <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"/>
-        </circle>
+        <!-- Outer edge highlight -->
+        <path d="M100 14
+                 C107 14 116 18 125 30
+                 L175 120"
+              fill="none" stroke="rgba(180,200,220,0.35)" stroke-width="1.2"/>
       </svg>
       <div class="reactor-flare" id="reactor-flare"></div>
       <div class="hand" id="hand">
